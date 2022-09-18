@@ -5,11 +5,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>To Do List</title>
     <link rel="stylesheet" href="style.css" type="text/css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@200;300;400;500;600;700&display=swap" rel="stylesheet">
 </head>
 <body>
     <h1>To do List</h1>
     
-    <div class="buttons">
+    <div class="container-buttons-input">
         <input type="text" id="input">
         <div>
             <button id="addTaskBt">Create new task</button>
@@ -19,24 +22,21 @@
 
     <main>
 
-        <section id="todo">
+        <section id="todo" class="task-box">
             <h4>To do</h4>
-            <ul id="todoUl">
-               
+            <ul id="todoUl" class="dropzone">
             </ul>
         </section>
 
-        <section id="doing">
+        <section id="doing" class="task-box">
             <h4>Doing</h4>
-            <ul id="doingUl">
-                <!-- <li><p>TASK 2</p></li> -->
+            <ul id="doingUl" class="dropzone">
             </ul>
         </section>
 
-        <section id="done">
+        <section id="done"  class="task-box">
             <h4>Done</h4>
-            <ul id="doneUl">
-                <!-- <li><p>TASK 3</p></li> -->
+            <ul id="doneUl" class="dropzone">
             </ul>
         </section>
     </main>

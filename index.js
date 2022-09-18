@@ -12,70 +12,7 @@ let draggingTask
 
 
 
-//------------------------catch Storage Tasks
-function catchStorageTasks() {
 
-    if(localStorage.getItem('arrayToDo') !== null && localStorage.getItem('arrayToDo') !== ""){
-        storageToDo = localStorage.getItem('arrayToDo').split(',')
-    }
-
-    if(localStorage.getItem('arrayDoing') !== null && localStorage.getItem('arrayDoing') !== ""){
-        storageDoing = localStorage.getItem('arrayDoing').split(',')
-    }
-
-    if(localStorage.getItem('arrayDone') !== null && localStorage.getItem('arrayDone') !== ""){
-        storageDone = localStorage.getItem('arrayDone').split(',')
-    }
-
-}
-
-function setStorageTasks() {
-
-    storageToDo.forEach(storageTask => {
-
-        const newLi = document.createElement('li')
-        const newP = document.createElement('p')
-
-        newLi.setAttribute("draggable", true)
-        newP.textContent = storageTask
-
-        newLi.appendChild(newP)
-
-        insertFunctionsToTask(newLi)
-
-        todoUl.appendChild(newLi)
-
-    })
-
-    storageDoing.forEach(storageTask => {
-        const newLi = document.createElement('li')
-        const newP = document.createElement('p')
-
-        newLi.setAttribute("draggable", true)
-        newP.textContent = storageTask
-
-        newLi.appendChild(newP)
-
-        insertFunctionsToTask(newLi)
-
-        doingUl.appendChild(newLi)
-    })
-
-    storageDone.forEach(storageTask => {
-
-        const newLi = document.createElement('li')
-        const newP = document.createElement('p')
-
-        newLi.setAttribute("draggable", true)
-        newP.textContent = storageTask
-
-        newLi.appendChild(newP)
-
-        insertFunctionsToTask(newLi)
-
-        doneUl.appendChild(newLi)
-    })
-}
 
 catchStorageTasks()
 setStorageTasks()
@@ -83,48 +20,26 @@ setStorageTasks()
 
 
 
+//==================== "CLEAR STORAGE" AND "CREATE NEW TASK" BUTTONS=====================
 
-//------------------------create task function
 addTaskButton.addEventListener('click', () => {
+
     if (input.value != '') {
         createTask(input.value)
+
+        storageToDo.push(input.value)
+
+        //save task into local storage
+        localStorage.setItem('arrayToDo', storageToDo)
+
+        //reset input value
+        input.value = ''
     }
 })
 
 
-function createTask(task) {
-
-    //create card elements
-    const newLi = document.createElement('li')
-    const newP = document.createElement('p')
-
-    newLi.setAttribute("draggable", true)
-
-    //set input value into paragraph
-    newP.textContent = task
-
-    //append new elements 
-    newLi.appendChild(newP)
-    todoUl.appendChild(newLi)
-
-    //reset input value
-    input.value = ''
-
-    storageToDo.push(newP.textContent)
-
-    //save task into local storage
-    localStorage.setItem('arrayToDo', storageToDo)
-
-    insertFunctionsToTask(newLi)
-}
-
-
-
-
-
-
-//----------------------------clear Storage function
 clearStorageButton.addEventListener('click', () => {
+
     localStorage.clear()
     window.location.reload()
 })
@@ -134,7 +49,8 @@ clearStorageButton.addEventListener('click', () => {
 
 
 
-//---------------------------drag and drop functions
+
+//==================== DRAG AND DROP FUNCTIONS: TASK =====================
 
 function insertFunctionsToTask(task) {
     task.addEventListener('dragstart', dragstart)
@@ -143,117 +59,146 @@ function insertFunctionsToTask(task) {
 
 function dragstart() {
     draggingTask = this
+    this.classList.add('is-dragging')
+    dropzones.forEach(dropzone => dropzone.classList.add('showDropzone'))
+
 }
 
 function dragend() {
-
+    this.classList.remove('is-dragging')
+    dropzones.forEach(dropzone => dropzone.classList.remove('showDropzone'))
 }
 
 
 
 
 
+
+
+//==================== DRAG AND DROP FUNCTIONS: DROPZONE =====================
 dropzones.forEach(dropzone => {
+
     dropzone.addEventListener('dragover', dragover)
-    dropzone.addEventListener('dragleave', dragleave)
     dropzone.addEventListener('drop', drop)
 })
 
 
 function dragover(event) {
+
     event.preventDefault();
-
-    this.classList.add('showDropzone')
-
     this.appendChild(draggingTask)
 }
 
-function dragleave() {
-    this.classList.remove('showDropzone')
-}
 
 function drop() {
     this.classList.remove('showDropzone')
+    draggingTask.classList.remove('is-dragging')
+    dropzones.forEach(dropzone => dropzone.classList.remove('showDropzone'))
 
-    const newList = this.previousElementSibling.textContent
-    const task = draggingTask.firstElementChild.textContent
+    const taskColumnName = this.previousElementSibling.textContent
+    const taskName = draggingTask.firstElementChild.textContent
 
+    if (storageToDo.indexOf(taskName) !== -1) {
 
-    if (storageToDo.indexOf(task) !== -1) {
-        storageToDo.splice(storageToDo.indexOf(task), 1)
+        storageToDo.splice(storageToDo.indexOf(taskName), 1)
         localStorage.setItem('arrayToDo', storageToDo)
-
-        switch (newList) {
-
-            case "To do":
-                storageToDo.push(task)
-                localStorage.setItem("arrayToDo", storageToDo)
-                break;
-            case "Doing":
-                storageDoing.push(task)
-                localStorage.setItem("arrayDoing", storageDoing)
-                break;
-
-            case "Done":
-                storageDone.push(task)
-                localStorage.setItem("arrayDone", storageDone)
-                break;
-
-            default:
-                break;
-        }//end switch
-    } //end if 
+        setTaskInNewColumn(taskColumnName, taskName)
+    } 
 
 
-    if (storageDoing.indexOf(task) !== -1) {
-        storageDoing.splice(storageDoing.indexOf(task), 1)
+    if (storageDoing.indexOf(taskName) !== -1) {
+
+        storageDoing.splice(storageDoing.indexOf(taskName), 1)
         localStorage.setItem('arrayDoing', storageDoing)
+        setTaskInNewColumn(taskColumnName, taskName)
+    }
 
-        switch (newList) {
 
-            case "To do":
-                storageToDo.push(task)
-                localStorage.setItem("arrayToDo", storageToDo)
-                break;
-            case "Doing":
-                storageDoing.push(task)
-                localStorage.setItem("arrayDoing", storageDoing)
-                break;
+    if (storageDone.indexOf(taskName) !== -1) {
 
-            case "Done":
-                storageDone.push(task)
-                localStorage.setItem("arrayDone", storageDone)
-                break;
-
-            default:
-                break;
-        }//end switch
+        storageDone.splice(storageDone.indexOf(taskName), 1)
+        localStorage.setItem('arrayDone', storageDone)
+        setTaskInNewColumn(taskColumnName, taskName)
     } //end if 
-    
-    
-        if (storageDone.indexOf(task) !== -1) {
-            storageDone.splice(storageDone.indexOf(task), 1)
-            localStorage.setItem('arrayDone', storageDone)
-    
-            switch (newList) {
+}
 
-                case "To do":
-                    storageToDo.push(task)
-                    localStorage.setItem("arrayToDo", storageToDo)
-                    break;
-                case "Doing":
-                    storageDoing.push(task)
-                    localStorage.setItem("arrayDoing", storageDoing)
-                    break;
-    
-                case "Done":
-                    storageDone.push(task)
-                    localStorage.setItem("arrayDone", storageDone)
-                    break;
-    
-                default:
-                    break;
-            }//end switch
-        } //end if 
 
+
+
+
+//======================== APP GENERAL FUNCTIONS
+
+function catchStorageTasks() {
+
+    if (localStorage.getItem('arrayToDo') !== null && localStorage.getItem('arrayToDo') !== "") {
+        storageToDo = localStorage.getItem('arrayToDo').split(',')
+    }
+
+    if (localStorage.getItem('arrayDoing') !== null && localStorage.getItem('arrayDoing') !== "") {
+        storageDoing = localStorage.getItem('arrayDoing').split(',')
+    }
+
+    if (localStorage.getItem('arrayDone') !== null && localStorage.getItem('arrayDone') !== "") {
+        storageDone = localStorage.getItem('arrayDone').split(',')
+    }
+
+}
+
+function setStorageTasks() {
+    storageToDo.forEach(storageTask => {
+
+        todoUl.appendChild(createTask(storageTask))
+    })
+
+    storageDoing.forEach(storageTask => {
+
+        doingUl.appendChild(createTask(storageTask))
+    })
+
+    storageDone.forEach(storageTask => {
+
+        doneUl.appendChild(createTask(storageTask))
+    })
+}
+
+function createTask(taskName) {
+    //create card elements
+    const taskCard = document.createElement('li')
+    const taskContent = document.createElement('p')
+
+    taskCard.setAttribute("draggable", true)
+
+    //set input value into paragraph
+    taskContent.textContent = taskName
+
+    //append new elements 
+    taskCard.appendChild(taskContent)
+    todoUl.appendChild(taskCard)
+
+    insertFunctionsToTask(taskCard)
+
+    return taskCard
+}
+
+function setTaskInNewColumn(taskColumnName, taskName) {
+
+    switch (taskColumnName) {
+
+        case "To do":
+            storageToDo.push(taskName)
+            localStorage.setItem("arrayToDo", storageToDo)
+            break;
+        case "Doing":
+            storageDoing.push(taskName)
+            localStorage.setItem("arrayDoing", storageDoing)
+            break;
+
+        case "Done":
+            storageDone.push(taskName)
+            localStorage.setItem("arrayDone", storageDone)
+            break;
+
+        default:
+            break;
+    }
 }
